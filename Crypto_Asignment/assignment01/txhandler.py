@@ -33,7 +33,14 @@ class TxHandler:
                 return False
             
             utxoSet.addUTXO(utxo_verify, output)
-                
+            pSum += output.values
+        for trans_output in tx.getOutput:
+            if trans_output.value < 0:
+                return False
+            sum += output.value
+        
+        if pSum < sum:
+            return False
         return True
 
 
@@ -42,6 +49,36 @@ class TxHandler:
     transaction for correctness, returning a mutually valid array of accepted transactions, and
     updating the current UTXO pool as appropriate.
     """
-    def handleTxs(self, txs):
-        # IMPLEMENT THIS
-        return 
+    def handleTxs(self, possibleTxs):
+        acceptedTx = []
+        i = 0
+        while i < len(possibleTxs):
+            tx = possibleTxs[i]
+            if self.isValidTx(tx):
+                acceptedTx.append(tx)
+
+                self.__removeConsumedCoinsFromPool(tx)
+                self.__addCreatedCoinsToPool(tx)
+            i += 1
+
+        result = [None for _ in range(len(acceptedTx))]
+        acceptedTx.toArray(result)
+        return result
+
+    def __addCreatedCoinsToPool(self, tx):
+        outputs = tx.getOutputs()
+        j = 0
+        while j < len(outputs):
+            output = outputs[j]
+            utxo = UTXO(tx.getHash(), j)
+            self.utxoPool.addUTXO(utxo, output)
+            j += 1
+
+    def __removeConsumedCoinsFromPool(self, tx):
+        inputs = tx.getInputs()
+        j = 0
+        while j < len(inputs):
+            input = inputs[j]
+            utxo = UTXO(input.prevTxHash, input.outputIndex)
+            self.utxoPool.removeUTXO(utxo)
+            j += 1
