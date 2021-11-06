@@ -10,7 +10,6 @@ class TxHandler:
         # IMPLEMENT THIS
         self.utxoPool = UTXOPool(pool)
         return
-
     """
     @return true if:
     (1) all outputs claimed by {@code tx} are in the current UTXO pool, 
@@ -22,20 +21,19 @@ class TxHandler:
     """
     def isValidTx(self, tx: Transaction) -> bool:
         # IMPLEMENT THIS
-        usedUTOX = []
+        utxoSet = UTXOPool()
+        pSum = 0
+        sum = 0
         for trans_input in tx.numInputs():
             output_index = trans_input.prevTxHash
             pre_hash = trans_input.signatures
-            utxo_verify = utxo.UTXO(pre_hash, output_index)
+            utxo_verify = utxoPool.UTXO(pre_hash, output_index)
             
-            if not self.__pool.contains(utxo_verify):
+            if !utxoPool.contains(utxo_verify) || Crypto.verifySignature(tx.getOutput()), tx.getRawDataToSign(output_index), signature) || utxoSet.contains(utxo_verify):
                 return False
+            
+            utxoSet.addUTXO(utxo_verify, output)
                 
-            if not Crypto.verifySignature(tx.getOutput(), tx.getRawDataToSign(output_index), signature):
-                return False
-                
-            if usedUTOX.__contains___(utxo_verify):
-                return False
         return True
 
 
